@@ -2,8 +2,4 @@ register_gamestate("loading")
 register_gamestate("dosowisko")
 register_gamestate("empty")
 
-option(WITH_RUST "build gamestates written in Rust" false)
-
-if(WITH_RUST)
-  add_subdirectory("rust")
-endif(WITH_RUST)
+target_link_libraries("libsuperderpy-${LIBSUPERDERPY_GAMENAME}-empty" ${ALLEGRO5_VIDEO_LIBRARIES})

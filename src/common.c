@@ -21,10 +21,24 @@
 
 #include "common.h"
 #include <libsuperderpy.h>
+#include <allegro5/allegro_video.h>
 
 struct CommonResources* CreateGameData(struct Game *game) {
 	struct CommonResources *data = calloc(1, sizeof(struct CommonResources));
+	al_init_video_addon();
 	return data;
+}
+
+void HighlightCharacter(struct Game *game, struct Character *character, float alpha) {
+	MoveCharacter(game, character, 2*4, 2*4, 0);
+	DrawCharacter(game, character, al_map_rgba(0,0,0,alpha*255), 0);
+	MoveCharacter(game, character, -4*4, -4*4, 0);
+	DrawCharacter(game, character, al_map_rgba(0,0,0,alpha*255), 0);
+	MoveCharacter(game, character, 2*4, 0, 0);
+	DrawCharacter(game, character, al_map_rgba(0,0,0,alpha*255), 0);
+	MoveCharacter(game, character, 0, 4*4, 0);
+	DrawCharacter(game, character, al_map_rgba(0,0,0,alpha*255), 0);
+	MoveCharacter(game, character, 0, -2*4, 0);
 }
 
 void DestroyGameData(struct Game *game, struct CommonResources *data) {
