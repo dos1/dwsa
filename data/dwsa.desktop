@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Doctor von Wissenschäftler Strikes Again
+Exec=dwsa
+Comment=Save the world
+Icon=dwsa
+Terminal=false
+Categories=Game;ArcadeGame;
