@@ -23,7 +23,7 @@
 #include <math.h>
 #include <libsuperderpy.h>
 
-#define NEXT_GAMESTATE "empty"
+#define NEXT_GAMESTATE "plans"
 #define SKIP_GAMESTATE NEXT_GAMESTATE
 
 struct GamestateResources {
@@ -218,6 +218,7 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	al_attach_sample_instance_to_mixer(data->key, game->audio.fx);
 	al_set_sample_instance_playmode(data->key, ALLEGRO_PLAYMODE_ONCE);
 	(*progress)(game);
+	al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
 
 	return data;
 }

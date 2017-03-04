@@ -21,11 +21,12 @@
 
 #include "common.h"
 #include <libsuperderpy.h>
-#include <allegro5/allegro_video.h>
 
 struct CommonResources* CreateGameData(struct Game *game) {
 	struct CommonResources *data = calloc(1, sizeof(struct CommonResources));
-	al_init_video_addon();
+
+	data->aftervideo = strdup("opening");
+	data->videoname = strdup("window.ogv");
 	return data;
 }
 

@@ -3,6 +3,8 @@
 
 struct CommonResources {
 		// Fill in with common data accessible from all gamestates.
+		char* videoname;
+		char* aftervideo;
 };
 void HighlightCharacter(struct Game *game, struct Character *character, float alpha);
 

@@ -24,6 +24,7 @@
 #include <signal.h>
 #include "common.h"
 #include <libsuperderpy.h>
+#include <allegro5/allegro_video.h>
 
 void derp(int sig) {
 	ssize_t __attribute__((unused)) n = write(STDERR_FILENO, "Segmentation fault\nI just don't know what went wrong!\n", 54);
@@ -41,6 +42,7 @@ int main(int argc, char** argv) {
 	struct Game *game = libsuperderpy_init(argc, argv, LIBSUPERDERPY_GAMENAME, (struct Viewport){1920, 1080});
 	if (!game) { return 1; }
 
+	al_init_video_addon();
 	al_set_window_title(game->display, LIBSUPERDERPY_GAMENAME_PRETTY);
 
 	LoadGamestate(game, "dosowisko");
