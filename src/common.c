@@ -31,15 +31,19 @@ struct CommonResources* CreateGameData(struct Game *game) {
 }
 
 void HighlightCharacter(struct Game *game, struct Character *character, float alpha) {
-	MoveCharacter(game, character, 2*4, 2*4, 0);
-	DrawCharacter(game, character, al_map_rgba(0,0,0,alpha*255), 0);
-	MoveCharacter(game, character, -4*4, -4*4, 0);
-	DrawCharacter(game, character, al_map_rgba(0,0,0,alpha*255), 0);
-	MoveCharacter(game, character, 2*4, 0, 0);
-	DrawCharacter(game, character, al_map_rgba(0,0,0,alpha*255), 0);
-	MoveCharacter(game, character, 0, 4*4, 0);
-	DrawCharacter(game, character, al_map_rgba(0,0,0,alpha*255), 0);
-	MoveCharacter(game, character, 0, -2*4, 0);
+	alpha *= 0.2;
+	MoveCharacter(game, character, 2*8, 2*8, 0);
+	DrawCharacter(game, character, al_map_rgba(alpha*255,alpha*255,0,alpha*255), 0);
+	MoveCharacter(game, character, -4*8, -4*8, 0);
+	DrawCharacter(game, character, al_map_rgba(alpha*255,alpha*255,0,alpha*255), 0);
+	MoveCharacter(game, character, 2*8, 0, 0);
+	DrawCharacter(game, character, al_map_rgba(alpha*255,alpha*255,0,alpha*255), 0);
+	MoveCharacter(game, character, 0, 4*8, 0);
+	DrawCharacter(game, character, al_map_rgba(alpha*255,alpha*255,0,alpha*255), 0);
+	MoveCharacter(game, character, 0, -2*8, 0);
+	alpha *= 3;
+	DrawCharacter(game, character, al_map_rgba(255,255,255,255), 0);
+	DrawCharacter(game, character, al_map_rgba(alpha*255,alpha*255,0,alpha*255), 0);
 }
 
 void DestroyGameData(struct Game *game, struct CommonResources *data) {

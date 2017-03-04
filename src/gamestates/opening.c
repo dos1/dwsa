@@ -31,9 +31,19 @@ struct GamestateResources {
 		int counter;
 
 		ALLEGRO_VIDEO *video;
-		ALLEGRO_BITMAP *bg, *closed, *open;
+		ALLEGRO_BITMAP *bg, *closed, *open, *security;
 
 		struct Character *zzz, *ego;
+
+		float alpha;
+
+		bool mirror;
+
+		bool highlight;
+		bool gotit;
+
+		bool videoended;
+		int videodelay;
 
 		bool videoend, moveleft, moveup, movedown, moveright;
 };
@@ -42,6 +52,8 @@ int Gamestate_ProgressCount = 1; // number of loading steps as reported by Games
 
 void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 	// Called 60 times per second. Here you should do all your game logic.
+	AnimateCharacter(game, data->zzz, 1);
+	AnimateCharacter(game, data->ego, 1);
 	data->counter++;
 	if (data->videoend) {
 		if (data->movedown) {
@@ -51,11 +63,40 @@ void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 			MoveCharacter(game, data->ego, 0, -3, 0);
 		}
 		if (data->moveleft) {
-			MoveCharacter(game, data->ego, -5, 0, 0);
+			MoveCharacter(game, data->ego, -7, 0, 0);
+			data->mirror = true;
 		}
 		if (data->moveright) {
-			MoveCharacter(game, data->ego, 5, 0, 0);
+			MoveCharacter(game, data->ego, 7, 0, 0);
+			data->mirror = false;
 		}
+		data->alpha-=0.05;
+		if (data->alpha < 0) data->alpha = 0;
+	}
+
+	if (data->videoended) {
+		data->videodelay--;
+		if (data->videodelay <= 0) {
+			data->videoended = false;
+			data->videoend = true;
+		}
+	}
+
+	if (GetCharacterY(game, data->ego) < 200) {
+		SetCharacterPosition(game, data->ego, GetCharacterX(game, data->ego), 200, 0);
+	}
+	if (GetCharacterY(game, data->ego) > 380) {
+		SetCharacterPosition(game, data->ego, GetCharacterX(game, data->ego), 380, 0);
+	}
+	if (GetCharacterX(game, data->ego) > 730) {
+		SetCharacterPosition(game, data->ego, 730, GetCharacterY(game, data->ego), 0);
+	}
+	if (GetCharacterX(game, data->ego) < -375) {
+		SwitchCurrentGamestate(game, "plans");
+	}
+
+	if (!data->gotit) {
+		data->highlight = GetCharacterX(game, data->ego) > 600;
 	}
 }
 
@@ -63,20 +104,31 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 	// Called as soon as possible, but no sooner than next Gamestate_Logic call.
 	// Draw everything to the screen here.
 	ALLEGRO_BITMAP *frame = al_get_video_frame(data->video);
-	al_draw_bitmap(data->bg, 0, 0, 0);
+	//al_draw_bitmap(data->bg, 0, 0, 0);
 	al_draw_bitmap(data->closed, 0, 0, 0);
 
-	if (IsOnCharacter(game, data->zzz, GetCharacterX(game, data->ego), GetCharacterY(game, data->ego))) {
-		HighlightCharacter(game, data->zzz, fabs(sin(data->counter / 40.0)) / 2.0 + 0.5);
-	}
-	DrawCharacter(game, data->zzz, al_map_rgb(255,255,255), 0);
+	float scale = 1.5 + ((GetCharacterY(game, data->ego) - 800) / 200.0) * 0.2;
+
 
 	if (data->videoend) {
-		DrawCharacter(game, data->ego, al_map_rgb(255,255,255), 0);
-	} else {
-		if (frame) {
-			al_draw_tinted_bitmap_region(frame, al_map_rgb(255,255,255), 1, 0, 413, 800, 375, 0, 0);
+		float alpha = 1 - data->alpha;
+		al_draw_tinted_bitmap(data->open, al_map_rgba(255*alpha,255*alpha,255*alpha,255*alpha), 0, 0, 0);
+		DrawScaledCharacter(game, data->ego, al_map_rgb(255,255,255), 1*scale, 1*scale, 0);
+	}
+
+	al_draw_bitmap(data->security, 1370, 0, 0);
+
+	  if (frame) {
+			al_draw_tinted_scaled_rotated_bitmap_region(frame, 175, 15, 1118, 558,
+			                                            al_map_rgba(255*data->alpha,255*data->alpha,255*data->alpha,255*data->alpha),
+			                                            0, 0, 172, 10, 1.005, 1.01, 0, 0);
 		}
+
+
+	if (data->highlight) {
+		HighlightCharacter(game, data->zzz, fabs(sin(data->counter / 40.0)) / 2.0 + 0.5);
+	} else {
+		DrawCharacter(game, data->zzz, al_map_rgb(255,255,255), 0);
 	}
 
 }
@@ -118,9 +170,17 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 	if ((ev->type==ALLEGRO_EVENT_KEY_UP) && (ev->keyboard.keycode == ALLEGRO_KEY_DOWN)) {
 		data->movedown = false;
 	}
+	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_SPACE)) {
+		if (data->highlight) {
+			SelectSpritesheet(game, data->ego, "standkrawat");
+			SelectSpritesheet(game, data->zzz, "zzz2");
+			data->gotit = true;
+			data->highlight = false;
+		}
+	}
 
 	if (ev->type==ALLEGRO_EVENT_VIDEO_FINISHED) {
-		data->videoend = true;
+		data->videoended = true;
 	}
 }
 
@@ -135,13 +195,16 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	data->bg = al_load_bitmap(GetDataFilePath(game, "sleepbg.png"));
 	data->closed = al_load_bitmap(GetDataFilePath(game, "sleepclosed.png"));
 	data->open = al_load_bitmap(GetDataFilePath(game, "sleepopen.png"));
+	data->security = al_load_bitmap(GetDataFilePath(game, "security.png"));
 
 	data->zzz = CreateCharacter(game, "zzz");
 	RegisterSpritesheet(game, data->zzz, "zzz");
+	RegisterSpritesheet(game, data->zzz, "zzz2");
 	LoadSpritesheets(game, data->zzz);
 
 	data->ego = CreateCharacter(game, "ego");
 	RegisterSpritesheet(game, data->ego, "stand");
+	RegisterSpritesheet(game, data->ego, "standkrawat");
 	LoadSpritesheets(game, data->ego);
 
 	al_register_event_source(game->_priv.event_queue, al_get_video_event_source(data->video));
@@ -159,15 +222,20 @@ void Gamestate_Unload(struct Game *game, struct GamestateResources* data) {
 void Gamestate_Start(struct Game *game, struct GamestateResources* data) {
 	// Called when this gamestate gets control. Good place for initializing state,
 	// playing music etc.
+	data->videodelay = 50;
+	data->videoended = false;
+	data->highlight = false;
+	data->gotit = false;
 	SelectSpritesheet(game, data->zzz, "zzz");
 	SelectSpritesheet(game, data->ego, "stand");
 
-	SetCharacterPosition(game, data->ego, 442, 351, 0);
-	SetCharacterPosition(game, data->zzz, 1124, 124, 0);
+	SetCharacterPosition(game, data->ego, 582, 281, 0);
+	SetCharacterPosition(game, data->zzz, 1141, 323, 0);
 
 	data->videoend = false;
 	al_start_video(data->video, game->audio.fx);
 
+	data->alpha = 1;
 	data->moveleft = false;
 	data->movedown = false;
 	data->moveright = false;
