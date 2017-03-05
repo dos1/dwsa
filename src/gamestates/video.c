@@ -57,6 +57,10 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 		} else {
 			if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_ESCAPE)) {
 				UnloadAllGamestates(game); // mark this gamestate to be stopped and unloaded
+			} else {
+				if (game->data->winner) {
+					UnloadAllGamestates(game); // mark this gamestate to be stopped and unloaded
+				}
 			}
 		}
 	}
