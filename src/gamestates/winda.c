@@ -47,6 +47,7 @@ void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 		if (GetCharacterY(game, data->ego) < 666) {
 			data->moveup = false;
 			data->init = false;
+			SelectSpritesheet(game, data->ego, "standkrawat");
 		}
 	}
 
@@ -141,6 +142,7 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_UP)) {
 		data->moveup = true;
+		SelectSpritesheet(game, data->ego, "top");
 	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_DOWN)) {
 		data->movedown = true;
@@ -153,6 +155,8 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_UP) && (ev->keyboard.keycode == ALLEGRO_KEY_UP)) {
 		data->moveup = false;
+		left = false;
+		SelectSpritesheet(game, data->ego,"standkrawat");
 	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_UP) && (ev->keyboard.keycode == ALLEGRO_KEY_DOWN)) {
 		data->movedown = false;
@@ -162,9 +166,12 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 		SelectSpritesheet(game, data->ego, "walkkrawat");
 	}
 	if (left && !(data->moveleft || data->moveright)) {
-		SelectSpritesheet(game, data->ego,"standkrawat");
+		if (data->moveup) {
+			SelectSpritesheet(game, data->ego, "top");
+		} else {
+			SelectSpritesheet(game, data->ego, "standkrawat");
+		}
 	}
-
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_SPACE)) {
 		if (data->highlight1) {
 			SayDialog(game, game->data->faceg, "Hmm, looks like one of the classic von Wissenschäftler's traps! I probably shouldn't go there.", "trap");
@@ -172,6 +179,15 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 		if (data->highlight2) {
 			SwitchCurrentGamestate(game, "evil");
 		}
+	}
+	if (ev->type==ALLEGRO_EVENT_KEY_DOWN) {
+
+		if (ev->keyboard.keycode == ALLEGRO_KEY_FULLSTOP) {
+			if (game->data->text) {
+				game->data->skip = true;
+			}
+		}
+
 	}
 }
 
@@ -186,6 +202,7 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	data->ego = CreateCharacter(game, "ego");
 	RegisterSpritesheet(game, data->ego, "standkrawat");
 	RegisterSpritesheet(game, data->ego, "walkkrawat");
+	RegisterSpritesheet(game, data->ego, "top");
 	LoadSpritesheets(game, data->ego);
 
 	data->drzwi = CreateCharacter(game, "activator");
@@ -208,7 +225,7 @@ void Gamestate_Unload(struct Game *game, struct GamestateResources* data) {
 void Gamestate_Start(struct Game *game, struct GamestateResources* data) {
 	// Called when this gamestate gets control. Good place for initializing state,
 	// playing music etc.
-	SelectSpritesheet(game, data->ego, "standkrawat");
+	SelectSpritesheet(game, data->ego, "top");
 	SetCharacterPosition(game, data->ego, 1100, 950, 0);
 data->init = true;
   data->moveleft = false;

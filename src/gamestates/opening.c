@@ -41,6 +41,7 @@ struct GamestateResources {
 
 		bool highlight;
 		bool gotit;
+		bool goback;
 
 		bool videoended;
 		int videodelay;
@@ -55,6 +56,15 @@ void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 	AnimateCharacter(game, data->zzz, 1);
 	AnimateCharacter(game, data->ego, 1);
 	data->counter++;
+	if (data->goback) {
+		if (GetCharacterX(game, data->ego) < 50) {
+			MoveCharacter(game, data->ego, 7, 0, 0);
+		} else {
+			data->goback = false;
+		}
+
+	} else {
+
 	if (data->videoend) {
 		if (data->movedown) {
 			MoveCharacter(game, data->ego, 0, 3, 0);
@@ -75,10 +85,12 @@ void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 	}
 
 	if (data->videoended) {
-		data->videodelay--;
-		if (data->videodelay <= 0) {
+		if (data->videodelay > 0) data->videodelay--;
+		if (data->videodelay == 0) {
 			data->videoended = false;
 			data->videoend = true;
+
+			SayDialog(game, game->data->faceg, "Hmm, he actually might be useful.", "s1");
 		}
 	}
 
@@ -92,9 +104,19 @@ void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 		SetCharacterPosition(game, data->ego, 730, GetCharacterY(game, data->ego), 0);
 	}
 	if (GetCharacterX(game, data->ego) < -375) {
-		SwitchCurrentGamestate(game, "video");
-		game->data->videoname = strdup("winda.ogv");
-		game->data->aftervideo = strdup("winda");
+		if (data->gotit) {
+			SwitchCurrentGamestate(game, "video");
+			LoadGamestate(game, "winda");
+			game->data->videoname = strdup("winda.ogv");
+			game->data->aftervideo = strdup("winda");
+		} else {
+			data->goback = true;
+			SayDialog(game, NULL, "UNAUTHORIZED PERSONEL", "up");
+			SayDialog(game, game->data->faceg, "The door won't open until I get some disguise.", "s3");
+
+		}
+	}
+
 	}
 
 	if (!data->gotit) {
@@ -173,6 +195,7 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_UP)) {
 		data->moveup = true;
+		SelectSpritesheet(game, data->ego, "top");
 	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_DOWN)) {
 		data->movedown = true;
@@ -185,6 +208,8 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_UP) && (ev->keyboard.keycode == ALLEGRO_KEY_UP)) {
 		data->moveup = false;
+		left = false;
+		SelectSpritesheet(game, data->ego, data->gotit ? "standkrawat": "stand");
 	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_UP) && (ev->keyboard.keycode == ALLEGRO_KEY_DOWN)) {
 		data->movedown = false;
@@ -194,7 +219,11 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 		SelectSpritesheet(game, data->ego, data->gotit ? "walkkrawat": "walk");
 	}
 	if (left && !(data->moveleft || data->moveright)) {
-		SelectSpritesheet(game, data->ego, data->gotit ? "standkrawat": "stand");
+		if (data->moveup) {
+			SelectSpritesheet(game, data->ego, "top");
+		} else {
+			SelectSpritesheet(game, data->ego, data->gotit ? "standkrawat": "stand");
+		}
 	}
 
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_SPACE)) {
@@ -203,11 +232,22 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 			SelectSpritesheet(game, data->zzz, "zzz2");
 			data->gotit = true;
 			data->highlight = false;
+			SayDialog(game, game->data->faceg, "Now I should be able to get through von Wissenschäftler's guards unnoticed.", "s4");
 		}
 	}
 
 	if (ev->type==ALLEGRO_EVENT_VIDEO_FINISHED) {
 		data->videoended = true;
+	}
+
+	if (ev->type==ALLEGRO_EVENT_KEY_DOWN) {
+
+		if (ev->keyboard.keycode == ALLEGRO_KEY_FULLSTOP) {
+			if (game->data->text) {
+				game->data->skip = true;
+			}
+		}
+
 	}
 }
 
@@ -234,6 +274,7 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	RegisterSpritesheet(game, data->ego, "standkrawat");
 	RegisterSpritesheet(game, data->ego, "walk");
 	RegisterSpritesheet(game, data->ego, "walkkrawat");
+	RegisterSpritesheet(game, data->ego, "top");
 	LoadSpritesheets(game, data->ego);
 
 	al_register_event_source(game->_priv.event_queue, al_get_video_event_source(data->video));
@@ -255,6 +296,7 @@ void Gamestate_Start(struct Game *game, struct GamestateResources* data) {
 	data->videoended = false;
 	data->highlight = false;
 	data->gotit = false;
+	data->goback = false;
 	SelectSpritesheet(game, data->zzz, "zzz");
 	SelectSpritesheet(game, data->ego, "stand");
 

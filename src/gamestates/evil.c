@@ -47,6 +47,8 @@ void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 		if (GetCharacterY(game, data->ego) < 680) {
 			data->moveup = false;
 			data->init = false;
+			SelectSpritesheet(game, data->ego, "standkrawat");
+
 		}
 	}
 
@@ -89,7 +91,7 @@ void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 	}
 
 
-	  data->highlight1 = (GetCharacterX(game, data->ego) > 1200);
+	  data->highlight1 = (GetCharacterX(game, data->ego) > 1100);
 
 
 	LogicDialogs(game);
@@ -152,7 +154,7 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_SPACE)) {
 		if (data->highlight1) {
-			UnloadAllGamestates(game);
+			StartGamestate(game, "machine");
 		}
 	}
 
@@ -178,6 +180,7 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	data->ego = CreateCharacter(game, "ego");
 	RegisterSpritesheet(game, data->ego, "standkrawat");
 	RegisterSpritesheet(game, data->ego, "walkkrawat");
+	RegisterSpritesheet(game, data->ego, "top");
 	LoadSpritesheets(game, data->ego);
 
 	data->drzwi = CreateCharacter(game, "activator");
@@ -186,6 +189,7 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 
 
 	LoadGamestate(game, "plans");
+	LoadGamestate(game, "machine");
 
 	return data;
 }
@@ -217,7 +221,7 @@ bool StopPlans(struct Game *game, struct TM_Action *action, enum TM_ActionState 
 void Gamestate_Start(struct Game *game, struct GamestateResources* data) {
 	// Called when this gamestate gets control. Good place for initializing state,
 	// playing music etc.
-	SelectSpritesheet(game, data->ego, "standkrawat");
+	SelectSpritesheet(game, data->ego, "top");
 	SetCharacterPosition(game, data->ego, 1100, 950, 0);
 data->init = true;
   data->moveleft = false;
@@ -227,7 +231,7 @@ data->init = true;
 	data->highlight1 = false;
 data->counter = 0;
   SelectSpritesheet(game, data->drzwi, "maszyna");
-	SetCharacterPosition(game, data->drzwi, 1656, 690, 0);
+	SetCharacterPosition(game, data->drzwi, 1396, 410, 0);
 
 	SayDialog(game, game->data->faceb, "Oh, there you are. I was awaiting you.", "evil1");
 	SayDialog(game, game->data->faceb, "And well, I'm impressed, I must say.", "evil2");

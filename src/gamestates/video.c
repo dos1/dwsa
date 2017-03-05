@@ -43,6 +43,7 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 	if (frame) {
 		al_draw_scaled_bitmap(frame, 0, 0, al_get_bitmap_width(frame), al_get_bitmap_height(frame), 0, 0, game->viewport.width, game->viewport.height, 0);
 	}
+	DrawDialogs(game);
 }
 
 void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, ALLEGRO_EVENT *ev) {
@@ -51,7 +52,7 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 	if (((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_ESCAPE)) || (ev->type==ALLEGRO_EVENT_VIDEO_FINISHED)) {
 		UnloadCurrentGamestate(game); // mark this gamestate to be stopped and unloaded
 		// When there are no active gamestates, the engine will quit.
-		StartGamestate(game, game->data->aftervideo);
+		SwitchCurrentGamestate(game, game->data->aftervideo);
 	}
 }
 
@@ -64,7 +65,7 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	data->video = al_open_video(GetDataFilePath(game, game->data->videoname));
 	al_register_event_source(game->_priv.event_queue, al_get_video_event_source(data->video));
 
-	LoadGamestate(game, game->data->aftervideo);
+	//LoadGamestate(game, game->data->aftervideo);
 
 	return data;
 }
