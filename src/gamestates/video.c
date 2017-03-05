@@ -34,6 +34,7 @@ int Gamestate_ProgressCount = 1; // number of loading steps as reported by Games
 
 void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 	// Called 60 times per second. Here you should do all your game logic.
+	LogicDialogs(game);
 }
 
 void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
