@@ -42,6 +42,7 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 	// Draw everything to the screen here.
 	al_draw_scaled_bitmap(data->bg, 0, 0, al_get_bitmap_width(data->bg), al_get_bitmap_height(data->bg), 0, 0, game->viewport.width, game->viewport.height, 0);
 	DrawScaledCharacter(game, data->doctor, al_map_rgb(255,255,255), 0.2,0.2,0);
+DrawDialogs(game);
 }
 
 void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, ALLEGRO_EVENT *ev) {

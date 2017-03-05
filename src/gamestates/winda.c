@@ -167,10 +167,10 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_SPACE)) {
 		if (data->highlight1) {
-			UnloadAllGamestates(game);
+			SayDialog(game, game->data->faceg, "Hmm, looks like one of the classic von Wissenschäftler's traps! I probably shouldn't go there.", "trap");
 		}
 		if (data->highlight2) {
-			SwitchCurrentGamestate(game, "plans");
+			SwitchCurrentGamestate(game, "evil");
 		}
 	}
 }

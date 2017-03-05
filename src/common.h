@@ -13,6 +13,8 @@ struct CommonResources {
 		char* text;
 		ALLEGRO_BITMAP *text_icon;
 
+		ALLEGRO_BITMAP *faceg, *faceb, *face;
+
 		struct Timeline *timeline;
 };
 void HighlightCharacter(struct Game *game, struct Character *character, float alpha);

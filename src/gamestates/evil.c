@@ -155,6 +155,16 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 			UnloadAllGamestates(game);
 		}
 	}
+
+	if (ev->type==ALLEGRO_EVENT_KEY_DOWN) {
+
+		if (ev->keyboard.keycode == ALLEGRO_KEY_FULLSTOP) {
+			if (game->data->text) {
+				game->data->skip = true;
+			}
+		}
+
+	}
 }
 
 void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
@@ -175,6 +185,8 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	LoadSpritesheets(game, data->drzwi);
 
 
+	LoadGamestate(game, "plans");
+
 	return data;
 }
 
@@ -183,6 +195,24 @@ void Gamestate_Unload(struct Game *game, struct GamestateResources* data) {
 	// Good place for freeing all allocated memory and resources.
 	free(data);
 }
+
+
+bool StartPlans(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
+//	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
+	if (state == TM_ACTIONSTATE_START) {
+		StartGamestate(game, "plans");
+	}
+	return true;
+}
+bool StopPlans(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
+//	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
+	if (state == TM_ACTIONSTATE_START) {
+		StopGamestate(game, "plans");
+	}
+	return true;
+}
+
+
 
 void Gamestate_Start(struct Game *game, struct GamestateResources* data) {
 	// Called when this gamestate gets control. Good place for initializing state,
@@ -198,6 +228,51 @@ data->init = true;
 data->counter = 0;
   SelectSpritesheet(game, data->drzwi, "maszyna");
 	SetCharacterPosition(game, data->drzwi, 1656, 690, 0);
+
+	SayDialog(game, game->data->faceb, "Oh, there you are. I was awaiting you.", "evil1");
+	SayDialog(game, game->data->faceb, "And well, I'm impressed, I must say.", "evil2");
+	SayDialog(game, game->data->faceb, "I thought my evil maze of dangerous traps will keep you engaged for a little bit longer.", "evil3");
+
+	SayDialog(game, game->data->faceg, "Evil maze? I took an elevator.", "maze");
+
+	SayDialog(game, game->data->faceb, "Oh... uhm, yeah, elevator... that explains a lot.", "evil4");
+
+	SayDialog(game, game->data->faceb, "But, okay! If you made it this far, you must be already aware of my masterful plan of building The Evil Comic Sans-o-nator 3000.", "evil5");
+	SayDialog(game, game->data->faceb, "As you know, we are inside of it right now, it's already initiated and there's nothing you can do to stop me from firing it!", "evil6");
+
+	TM_AddAction(game->data->timeline, StartPlans, NULL, "plans");
+
+	SayDialog(game, game->data->faceb, "Then my deathly beam will reach the Earth and turn every single font in every single internet browser into Comic Sans.", "evil7");
+	SayDialog(game, game->data->faceb, "Muahahaha!", "evil8");
+	SayDialog(game, game->data->faceb, "But well, you sure already know that this is not everything.", "evil9");
+	SayDialog(game, game->data->faceb, "Actually, there will be one browser left intact: the wonderful Internet Explorer.", "evil10");
+	SayDialog(game, game->data->faceb, "Frustrated inhabitants of planet Earth will turn their hopes into their most hated browser as their only way to keep away from Comic Sans...", "evil11");
+	SayDialog(game, game->data->faceb, "...and as we all know, Internet Explorer will make them so vulnerable I'll take over their PCs in no time, which means taking over their lifes, and in turn, taking over the whole world!", "evil12");
+	SayDialog(game, game->data->faceb, "Muhahahaaha!", "evil13");
+	TM_AddAction(game->data->timeline, StopPlans, NULL, "plans");
+	SayDialog(game, game->data->faceb, "How do you feel now, knowing that you're absolutely powerless against my malevolent plans?", "evil14");
+	SayDialog(game, game->data->faceb, "You thwarted my operations way too many times already, now it's time to get my sweet revenge!", "evil15");
+	SayDialog(game, game->data->faceb, "Feel the power of The Evil Comic Sans-o-nator 3000!", "evil16");
+
+	for (int i=0; i<5; i++) {
+		SayDialog(game, game->data->faceb, "Muahahahahahahahahahahahaha!", "l1");
+		SayDialog(game, game->data->faceb, "Ahahahhhahahaha! Muoahohohohoaohaoo!", "l2");
+		SayDialog(game, game->data->faceb, "Muaahahahaha hhhahahahahaahahahahaha!", "l3");
+		SayDialog(game, game->data->faceb, "Ahahahah hahahaahahahahahahahahahahah!", "l4");
+		SayDialog(game, game->data->faceb, "Muahahahahahahahahahhahahahhaha!", "l5");
+		SayDialog(game, game->data->faceb, "Hahahahahahahahahahahahahahaa!", "l6");
+		SayDialog(game, game->data->faceb, "Ohohoahahahahahahahahahahahhohaha!", "l7");
+		SayDialog(game, game->data->faceb, "Hahahahahahahahhahahaahaha!", "l8");
+		SayDialog(game, game->data->faceb, "Muahhahahahahahahahahahahahahahaha!", "l9");
+		SayDialog(game, game->data->faceb, "Hahahahhahaahahahahahahahahaaha!", "l10");
+		SayDialog(game, game->data->faceb, "Muahhahahahahahahahahahahah!", "l11");
+		SayDialog(game, game->data->faceb, "Haha ha ha hhahaha phew haha!", "l12");
+		SayDialog(game, game->data->faceb, "Hahhhahahahahahahahahhhahh!", "l13");
+		SayDialog(game, game->data->faceb, "Hahahahahahahahahahahha!", "l14");
+}
+	SayDialog(game, game->data->faceb, "Haha ha ha hhahaha phew haha!", "l12");
+
+
 }
 
 void Gamestate_Stop(struct Game *game, struct GamestateResources* data) {
