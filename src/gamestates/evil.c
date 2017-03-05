@@ -30,6 +30,7 @@ struct GamestateResources {
 		struct Character *ego;
 		bool moveleft, moveup, movedown, moveright, mirror, highlight1;
 		bool init;
+		bool unlock;
 int counter;
     struct Character *drzwi;
 
@@ -90,11 +91,11 @@ void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 		SetCharacterPosition(game, data->ego, 10, GetCharacterY(game, data->ego), 0);
 	}
 
-
+if (data->unlock) {
 	  data->highlight1 = (GetCharacterX(game, data->ego) > 1100);
+}
 
-
-	LogicDialogs(game);
+  LogicDialogs(game);
 }
 
 void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
@@ -209,9 +210,10 @@ bool StartPlans(struct Game *game, struct TM_Action *action, enum TM_ActionState
 	return true;
 }
 bool StopPlans(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
-//	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
+	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
 	if (state == TM_ACTIONSTATE_START) {
 		StopGamestate(game, "plans");
+		data->unlock = true;
 	}
 	return true;
 }
@@ -224,6 +226,10 @@ void Gamestate_Start(struct Game *game, struct GamestateResources* data) {
 	SelectSpritesheet(game, data->ego, "top");
 	SetCharacterPosition(game, data->ego, 1100, 950, 0);
 data->init = true;
+data->unlock = false;
+if (game->data->skipevil) {
+	data->unlock = true;
+}
   data->moveleft = false;
 	data->movedown = false;
 	data->moveright = false;
@@ -254,7 +260,7 @@ data->counter = 0;
 	SayDialog(game, game->data->faceb, "Frustrated inhabitants of planet Earth will turn their hopes into their most hated browser as their only way to keep away from Comic Sans...", "evil11");
 	SayDialog(game, game->data->faceb, "...and as we all know, Internet Explorer will make them so vulnerable I'll take over their PCs in no time, which means taking over their lifes, and in turn, taking over the whole world!", "evil12");
 	SayDialog(game, game->data->faceb, "Muhahahaaha!", "evil13");
-	TM_AddAction(game->data->timeline, StopPlans, NULL, "plans");
+	TM_AddAction(game->data->timeline, StopPlans, TM_AddToArgs(NULL, 1, data), "plans");
 	SayDialog(game, game->data->faceb, "How do you feel now, knowing that you're absolutely powerless against my malevolent plans?", "evil14");
 	SayDialog(game, game->data->faceb, "You thwarted my operations way too many times already, now it's time to get my sweet revenge!", "evil15");
 }
