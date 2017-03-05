@@ -92,12 +92,16 @@ void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 		SetCharacterPosition(game, data->ego, 730, GetCharacterY(game, data->ego), 0);
 	}
 	if (GetCharacterX(game, data->ego) < -375) {
-		SwitchCurrentGamestate(game, "plans");
+		SwitchCurrentGamestate(game, "video");
+		game->data->videoname = strdup("winda.ogv");
+		game->data->aftervideo = strdup("winda");
 	}
 
 	if (!data->gotit) {
 		data->highlight = GetCharacterX(game, data->ego) > 600;
 	}
+
+	LogicDialogs(game);
 }
 
 void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
@@ -113,7 +117,6 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 	if (data->videoend) {
 		float alpha = 1 - data->alpha;
 		al_draw_tinted_bitmap(data->open, al_map_rgba(255*alpha,255*alpha,255*alpha,255*alpha), 0, 0, 0);
-		DrawScaledCharacter(game, data->ego, al_map_rgb(255,255,255), 1*scale, 1*scale, 0);
 	}
 
 	al_draw_bitmap(data->security, 1370, 0, 0);
@@ -121,15 +124,29 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 	  if (frame) {
 			al_draw_tinted_scaled_rotated_bitmap_region(frame, 175, 15, 1118, 558,
 			                                            al_map_rgba(255*data->alpha,255*data->alpha,255*data->alpha,255*data->alpha),
-			                                            0, 0, 172, 10, 1.005, 1.01, 0, 0);
+			                                            0, 0, 171, 8, 1.008, 1.015, 0, 0);
+			al_draw_tinted_scaled_rotated_bitmap_region(frame, 175, 15, 1118, 558,
+			                                            al_map_rgba(255*data->alpha,255*data->alpha,255*data->alpha,255*data->alpha),
+			                                            0, 0, 171, 8, 1.008, 1.015, 0, 0);
+			al_draw_tinted_scaled_rotated_bitmap_region(frame, 175, 15, 1118, 558,
+			                                            al_map_rgba(255*data->alpha,255*data->alpha,255*data->alpha,255*data->alpha),
+			                                            0, 0, 171, 8, 1.008, 1.015, 0, 0);
+			al_draw_tinted_scaled_rotated_bitmap_region(frame, 175, 15, 1118, 558,
+			                                            al_map_rgba(255*data->alpha,255*data->alpha,255*data->alpha,255*data->alpha),
+			                                            0, 0, 171, 8, 1.008, 1.015, 0, 0);
 		}
-
+		if (data->videoend) {
+			float alpha = 1 - data->alpha;
+			DrawScaledCharacter(game, data->ego, al_map_rgba(255*alpha,255*alpha,255*alpha,255*alpha), 1*scale, 1*scale, data->moveleft ? ALLEGRO_FLIP_HORIZONTAL : 0);
+		}
 
 	if (data->highlight) {
 		HighlightCharacter(game, data->zzz, fabs(sin(data->counter / 40.0)) / 2.0 + 0.5);
 	} else {
 		DrawCharacter(game, data->zzz, al_map_rgb(255,255,255), 0);
 	}
+
+	DrawDialogs(game);
 
 }
 
@@ -145,6 +162,8 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 			data->videoend = true;
 		}
 	}
+
+	bool left = data->moveleft || data->moveright;
 
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_LEFT)) {
 		data->moveleft = true;
@@ -170,6 +189,14 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 	if ((ev->type==ALLEGRO_EVENT_KEY_UP) && (ev->keyboard.keycode == ALLEGRO_KEY_DOWN)) {
 		data->movedown = false;
 	}
+
+	if (!left && (data->moveleft || data->moveright)) {
+		SelectSpritesheet(game, data->ego, data->gotit ? "walkkrawat": "walk");
+	}
+	if (left && !(data->moveleft || data->moveright)) {
+		SelectSpritesheet(game, data->ego, data->gotit ? "standkrawat": "stand");
+	}
+
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_SPACE)) {
 		if (data->highlight) {
 			SelectSpritesheet(game, data->ego, "standkrawat");
@@ -205,6 +232,8 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	data->ego = CreateCharacter(game, "ego");
 	RegisterSpritesheet(game, data->ego, "stand");
 	RegisterSpritesheet(game, data->ego, "standkrawat");
+	RegisterSpritesheet(game, data->ego, "walk");
+	RegisterSpritesheet(game, data->ego, "walkkrawat");
 	LoadSpritesheets(game, data->ego);
 
 	al_register_event_source(game->_priv.event_queue, al_get_video_event_source(data->video));
