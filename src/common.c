@@ -27,8 +27,8 @@ struct CommonResources* CreateGameData(struct Game *game) {
 
 	data->aftervideo = strdup("opening");
 	data->videoname = strdup("mart.ogv");
-
-	data->text = NULL; //strdup("Oh... uhm, yeah, elevator... that explains a lot. But, okay! If you made it this far, you must be already aware of my masterful plan of building The Evil Comic Sans-o-nator 3000. As you know, we are inside of it right now, it's already initiated and there's nothing you can do to stop me from firing it! Then my deathly beam will reach the Earth and turn every single font in every single internet browser into Comic Sans. Muahahaha! But well, you sure already know that this is not everything. Actually, there will be one browser left intact: the wonderful Internet Explorer. Frustrated inhabitants of planet Earth will turn their hopes into their most hated browser as the only way to keep away from Comic Sans... and as we all know, Internet Explorer will make them so vulnerable I'll take over their PCs in no time, which means taking over their lifes, and in turn, taking over the whole world! Muhahahaaha! How do you feel now, knowing that you're absolutely powerless against my malevolent plans? You thwarted my operations way too many times already, now it's time to get my sweet revenge! Feel the power of The Evil Comic Sans-o-nator 3000, hahahahahahahahahahahahauahahuahahahahahaa(...)ahahahahahahahahahahahahahahahahahuahuaah!");
+data->winner = false;
+  data->text = NULL; //strdup("Oh... uhm, yeah, elevator... that explains a lot. But, okay! If you made it this far, you must be already aware of my masterful plan of building The Evil Comic Sans-o-nator 3000. As you know, we are inside of it right now, it's already initiated and there's nothing you can do to stop me from firing it! Then my deathly beam will reach the Earth and turn every single font in every single internet browser into Comic Sans. Muahahaha! But well, you sure already know that this is not everything. Actually, there will be one browser left intact: the wonderful Internet Explorer. Frustrated inhabitants of planet Earth will turn their hopes into their most hated browser as the only way to keep away from Comic Sans... and as we all know, Internet Explorer will make them so vulnerable I'll take over their PCs in no time, which means taking over their lifes, and in turn, taking over the whole world! Muhahahaaha! How do you feel now, knowing that you're absolutely powerless against my malevolent plans? You thwarted my operations way too many times already, now it's time to get my sweet revenge! Feel the power of The Evil Comic Sans-o-nator 3000, hahahahahahahahahahahahauahahuahahahahahaa(...)ahahahahahahahahahahahahahahahahahuahuaah!");
 	data->font = al_load_font(GetDataFilePath(game, "fonts/DroidSans.ttf"), 42, 0);
 
 	data->faceb = al_load_bitmap(GetDataFilePath(game, "faceb.png"));
@@ -37,8 +37,13 @@ struct CommonResources* CreateGameData(struct Game *game) {
 
 	data->skip = false;
 	data->timeline = TM_Init(game, "speech");
-
-	return data;
+data->skipevil = false;
+  data->music = al_load_audio_stream(GetDataFilePath(game, "bensound-scifi.ogg"), 4, 1024);
+	al_attach_audio_stream_to_mixer(data->music, game->audio.music);
+	al_set_audio_stream_gain(data->music, 0.3);
+	al_set_audio_stream_playing(data->music, false);
+al_set_audio_stream_playmode(data->music, ALLEGRO_PLAYMODE_LOOP);
+  return data;
 }
 
 bool Speak(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {

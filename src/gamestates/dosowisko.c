@@ -24,7 +24,7 @@
 #include <libsuperderpy.h>
 
 #define NEXT_GAMESTATE "video"
-#define SKIP_GAMESTATE "opening"
+#define SKIP_GAMESTATE "evil"
 
 struct GamestateResources {
 		ALLEGRO_FONT *font;

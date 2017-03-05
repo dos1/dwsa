@@ -47,7 +47,7 @@ void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 		if (GetCharacterY(game, data->ego) < 680) {
 			data->moveup = false;
 			data->init = false;
-			SelectSpritesheet(game, data->ego, "standkrawat");
+			SelectSpritesheet(game, data->ego, "top1");
 
 		}
 	}
@@ -149,7 +149,7 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 		SelectSpritesheet(game, data->ego, "walkkrawat");
 	}
 	if (left && !(data->moveleft || data->moveright)) {
-		SelectSpritesheet(game, data->ego,"standkrawat");
+		SelectSpritesheet(game, data->ego,"top1");
 	}
 
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_SPACE)) {
@@ -178,7 +178,7 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	data->bg = al_load_bitmap(GetDataFilePath(game, "evil.png"));
 
 	data->ego = CreateCharacter(game, "ego");
-	RegisterSpritesheet(game, data->ego, "standkrawat");
+	RegisterSpritesheet(game, data->ego, "top1");
 	RegisterSpritesheet(game, data->ego, "walkkrawat");
 	RegisterSpritesheet(game, data->ego, "top");
 	LoadSpritesheets(game, data->ego);
@@ -233,6 +233,7 @@ data->counter = 0;
   SelectSpritesheet(game, data->drzwi, "maszyna");
 	SetCharacterPosition(game, data->drzwi, 1396, 410, 0);
 
+	if (!game->data->skipevil) {
 	SayDialog(game, game->data->faceb, "Oh, there you are. I was awaiting you.", "evil1");
 	SayDialog(game, game->data->faceb, "And well, I'm impressed, I must say.", "evil2");
 	SayDialog(game, game->data->faceb, "I thought my evil maze of dangerous traps will keep you engaged for a little bit longer.", "evil3");
@@ -256,6 +257,7 @@ data->counter = 0;
 	TM_AddAction(game->data->timeline, StopPlans, NULL, "plans");
 	SayDialog(game, game->data->faceb, "How do you feel now, knowing that you're absolutely powerless against my malevolent plans?", "evil14");
 	SayDialog(game, game->data->faceb, "You thwarted my operations way too many times already, now it's time to get my sweet revenge!", "evil15");
+}
 	SayDialog(game, game->data->faceb, "Feel the power of The Evil Comic Sans-o-nator 3000!", "evil16");
 
 	for (int i=0; i<5; i++) {

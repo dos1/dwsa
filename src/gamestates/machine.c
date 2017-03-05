@@ -69,7 +69,18 @@ void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 	if (data->time >= 1) {
 		TM_CleanQueue(game->data->timeline);
 		StopGamestate(game, "evil");
-		SwitchCurrentGamestate(game, "opening");
+		SwitchCurrentGamestate(game, "video");
+		al_set_audio_stream_playing(game->data->music, false);
+
+		if (data->rot <= ALLEGRO_PI - 0.5) {
+			game->data->videoname = strdup("endlose.ogv");
+			game->data->aftervideo = NULL;
+		} else {
+			game->data->videoname = strdup("endwin.ogv");
+			game->data->aftervideo = NULL;
+			game->data->winner = true;
+		}
+
 	}
 }
 

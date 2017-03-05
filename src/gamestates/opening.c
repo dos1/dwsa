@@ -106,9 +106,9 @@ void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 	if (GetCharacterX(game, data->ego) < -375) {
 		if (data->gotit) {
 			SwitchCurrentGamestate(game, "video");
-			LoadGamestate(game, "winda");
-			game->data->videoname = strdup("winda.ogv");
-			game->data->aftervideo = strdup("winda");
+			LoadGamestate(game, "corridor");
+			game->data->videoname = strdup("korytarz.ogv");
+			game->data->aftervideo = strdup("corridor");
 		} else {
 			data->goback = true;
 			SayDialog(game, NULL, "UNAUTHORIZED PERSONEL", "up");
@@ -312,6 +312,9 @@ void Gamestate_Start(struct Game *game, struct GamestateResources* data) {
 	data->moveright = false;
 	data->moveup = false;
 	data->counter = 0;
+
+	al_set_audio_stream_playing(game->data->music, true);
+
 }
 
 void Gamestate_Stop(struct Game *game, struct GamestateResources* data) {

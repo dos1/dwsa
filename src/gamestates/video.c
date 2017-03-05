@@ -50,10 +50,29 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 	// Called for each event in Allegro event queue.
 	// Here you can handle user input, expiring timers etc.
 	if (((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_ESCAPE)) || (ev->type==ALLEGRO_EVENT_VIDEO_FINISHED)) {
-		UnloadCurrentGamestate(game); // mark this gamestate to be stopped and unloaded
 		// When there are no active gamestates, the engine will quit.
-		SwitchCurrentGamestate(game, game->data->aftervideo);
+		if (game->data->aftervideo) {
+			UnloadCurrentGamestate(game); // mark this gamestate to be stopped and unloaded
+			SwitchCurrentGamestate(game, game->data->aftervideo);
+		} else {
+			if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_ESCAPE)) {
+				UnloadAllGamestates(game); // mark this gamestate to be stopped and unloaded
+			}
+		}
 	}
+	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_SPACE)) {
+	if (!game->data->aftervideo) {
+		UnloadAllGamestates(game); // mark this gamestate to be stopped and unloaded
+if (!game->data->winner) {
+	  LoadGamestate(game, "evil");
+		StartGamestate(game, "evil");
+		game->data->skipevil = true;
+		al_set_audio_stream_playing(game->data->music, true);
+}
+	}
+
+	}
+
 }
 
 void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
