@@ -27,7 +27,6 @@
 struct GamestateResources {
 		// This struct is for every resource allocated and used by your gamestate.
 		// It gets created on load and then gets passed around to all other function calls.
-		ALLEGRO_FONT *font;
 		int counter;
 
 		ALLEGRO_VIDEO *video;
@@ -49,7 +48,7 @@ struct GamestateResources {
 		bool videoend, moveleft, moveup, movedown, moveright;
 };
 
-int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
+int Gamestate_ProgressCount = 6; // number of loading steps as reported by Gamestate_Load
 
 void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 	// Called 60 times per second. Here you should do all your game logic.
@@ -111,6 +110,7 @@ void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 			game->data->aftervideo = strdup("corridor");
 		} else {
 			data->goback = true;
+			TM_CleanQueue(game->data->timeline);
 			SayDialog(game, NULL, "UNAUTHORIZED PERSONEL", "up");
 			SayDialog(game, game->data->faceg, "The door won't open until I get some disguise.", "s3");
 
@@ -232,6 +232,7 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 			SelectSpritesheet(game, data->zzz, "zzz2");
 			data->gotit = true;
 			data->highlight = false;
+			TM_CleanQueue(game->data->timeline);
 			SayDialog(game, game->data->faceg, "Now I should be able to get through von Wissenschäftler's guards unnoticed.", "s4");
 		}
 	}
@@ -255,19 +256,23 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	// Called once, when the gamestate library is being loaded.
 	// Good place for allocating memory, loading bitmaps etc.
 	struct GamestateResources *data = malloc(sizeof(struct GamestateResources));
-	data->font = al_create_builtin_font();
-	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 
 	data->video = al_open_video(GetDataFilePath(game, "window.ogv"));
+	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 	data->bg = al_load_bitmap(GetDataFilePath(game, "sleepbg.png"));
+	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 	data->closed = al_load_bitmap(GetDataFilePath(game, "sleepclosed.png"));
+	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 	data->open = al_load_bitmap(GetDataFilePath(game, "sleepopen.png"));
+	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 	data->security = al_load_bitmap(GetDataFilePath(game, "security.png"));
+	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 
 	data->zzz = CreateCharacter(game, "zzz");
 	RegisterSpritesheet(game, data->zzz, "zzz");
 	RegisterSpritesheet(game, data->zzz, "zzz2");
 	LoadSpritesheets(game, data->zzz);
+	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 
 	data->ego = CreateCharacter(game, "ego");
 	RegisterSpritesheet(game, data->ego, "stand");
@@ -285,7 +290,13 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 void Gamestate_Unload(struct Game *game, struct GamestateResources* data) {
 	// Called when the gamestate library is being unloaded.
 	// Good place for freeing all allocated memory and resources.
-	al_destroy_font(data->font);
+	al_close_video(data->video);
+	al_destroy_bitmap(data->bg);
+	al_destroy_bitmap(data->closed);
+	al_destroy_bitmap(data->open);
+	al_destroy_bitmap(data->security);
+	DestroyCharacter(game, data->zzz);
+	DestroyCharacter(game, data->ego);
 	free(data);
 }
 

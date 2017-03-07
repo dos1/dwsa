@@ -35,7 +35,7 @@ int counter;
 
 };
 
-int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
+int Gamestate_ProgressCount = 3; // number of loading steps as reported by Gamestate_Load
 
 void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 	// Called 60 times per second. Here you should do all your game logic.
@@ -174,10 +174,13 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_SPACE)) {
 		if (data->highlight1) {
+			TM_CleanQueue(game->data->timeline);
 			SayDialog(game, game->data->faceg, "Hmm, looks like one of the classic von Wissenschäftler's traps! I probably shouldn't go there.", "trap");
 		}
 		if (data->highlight2) {
 			SwitchCurrentGamestate(game, "evil");
+			LoadGamestate(game, "plans");
+			LoadGamestate(game, "machine");
 		}
 	}
 	if (ev->type==ALLEGRO_EVENT_KEY_DOWN) {
@@ -195,19 +198,21 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	// Called once, when the gamestate library is being loaded.
 	// Good place for allocating memory, loading bitmaps etc.
 	struct GamestateResources *data = malloc(sizeof(struct GamestateResources));
-	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 
 	data->bg = al_load_bitmap(GetDataFilePath(game, "winda.png"));
+	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 
 	data->ego = CreateCharacter(game, "ego");
 	RegisterSpritesheet(game, data->ego, "standkrawat");
 	RegisterSpritesheet(game, data->ego, "walkkrawat");
 	RegisterSpritesheet(game, data->ego, "top");
 	LoadSpritesheets(game, data->ego);
+	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 
 	data->drzwi = CreateCharacter(game, "activator");
 	RegisterSpritesheet(game, data->drzwi, "drzwi");
 	LoadSpritesheets(game, data->drzwi);
+	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 
 	data->winda = CreateCharacter(game, "activator");
 	RegisterSpritesheet(game, data->winda, "winda");
@@ -219,6 +224,10 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 void Gamestate_Unload(struct Game *game, struct GamestateResources* data) {
 	// Called when the gamestate library is being unloaded.
 	// Good place for freeing all allocated memory and resources.
+	al_destroy_bitmap(data->bg);
+	DestroyCharacter(game, data->ego);
+	DestroyCharacter(game, data->drzwi);
+	DestroyCharacter(game, data->winda);
 	free(data);
 }
 

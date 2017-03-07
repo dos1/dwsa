@@ -21,6 +21,7 @@
 
 #include "common.h"
 #include <libsuperderpy.h>
+#include <stdio.h>
 
 struct CommonResources* CreateGameData(struct Game *game) {
 	struct CommonResources *data = calloc(1, sizeof(struct CommonResources));
@@ -98,6 +99,13 @@ void HighlightCharacter(struct Game *game, struct Character *character, float al
 }
 
 void DestroyGameData(struct Game *game, struct CommonResources *data) {
+
+	al_destroy_font(data->font);
+	al_destroy_bitmap(data->faceg);
+	al_destroy_bitmap(data->faceb);
+	al_destroy_audio_stream(data->music);
+	TM_Destroy(data->timeline);
+
 	free(data);
 }
 

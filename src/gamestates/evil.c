@@ -36,7 +36,7 @@ int counter;
 
 };
 
-int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
+int Gamestate_ProgressCount = 3; // number of loading steps as reported by Gamestate_Load
 
 void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 	// Called 60 times per second. Here you should do all your game logic.
@@ -174,23 +174,21 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	// Called once, when the gamestate library is being loaded.
 	// Good place for allocating memory, loading bitmaps etc.
 	struct GamestateResources *data = malloc(sizeof(struct GamestateResources));
-	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 
 	data->bg = al_load_bitmap(GetDataFilePath(game, "evil.png"));
+	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 
 	data->ego = CreateCharacter(game, "ego");
 	RegisterSpritesheet(game, data->ego, "top1");
 	RegisterSpritesheet(game, data->ego, "walkkrawat");
 	RegisterSpritesheet(game, data->ego, "top");
 	LoadSpritesheets(game, data->ego);
+	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 
 	data->drzwi = CreateCharacter(game, "activator");
 	RegisterSpritesheet(game, data->drzwi, "maszyna");
 	LoadSpritesheets(game, data->drzwi);
-
-
-	LoadGamestate(game, "plans");
-	LoadGamestate(game, "machine");
+	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 
 	return data;
 }
@@ -198,14 +196,19 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 void Gamestate_Unload(struct Game *game, struct GamestateResources* data) {
 	// Called when the gamestate library is being unloaded.
 	// Good place for freeing all allocated memory and resources.
+	al_destroy_bitmap(data->bg);
+	DestroyCharacter(game, data->ego);
+	DestroyCharacter(game, data->drzwi);
 	free(data);
 }
 
 
 bool StartPlans(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
 //	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
+	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
 	if (state == TM_ACTIONSTATE_START) {
 		StartGamestate(game, "plans");
+		data->unlock = false;
 	}
 	return true;
 }
@@ -226,7 +229,7 @@ void Gamestate_Start(struct Game *game, struct GamestateResources* data) {
 	SelectSpritesheet(game, data->ego, "top");
 	SetCharacterPosition(game, data->ego, 1100, 950, 0);
 data->init = true;
-data->unlock = false;
+data->unlock = true;
 if (game->data->skipevil) {
 	data->unlock = true;
 }
@@ -251,7 +254,7 @@ data->counter = 0;
 	SayDialog(game, game->data->faceb, "But, okay! If you made it this far, you must be already aware of my masterful plan of building The Evil Comic Sans-o-nator 3000.", "evil5");
 	SayDialog(game, game->data->faceb, "As you know, we are inside of it right now, it's already initiated and there's nothing you can do to stop me from firing it!", "evil6");
 
-	TM_AddAction(game->data->timeline, StartPlans, NULL, "plans");
+	TM_AddAction(game->data->timeline, StartPlans, TM_AddToArgs(NULL, 1, data), "plans");
 
 	SayDialog(game, game->data->faceb, "Then my deathly beam will reach the Earth and turn every single font in every single internet browser into Comic Sans.", "evil7");
 	SayDialog(game, game->data->faceb, "Muahahaha!", "evil8");
@@ -266,7 +269,7 @@ data->counter = 0;
 }
 	SayDialog(game, game->data->faceb, "Feel the power of The Evil Comic Sans-o-nator 3000!", "evil16");
 
-	for (int i=0; i<5; i++) {
+	for (int i=0; i<8; i++) {
 		SayDialog(game, game->data->faceb, "Muahahahahahahahahahahahaha!", "l1");
 		SayDialog(game, game->data->faceb, "Ahahahhhahahaha! Muoahohohohoaohaoo!", "l2");
 		SayDialog(game, game->data->faceb, "Muaahahahaha hhhahahahahaahahahahaha!", "l3");

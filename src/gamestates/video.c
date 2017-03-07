@@ -53,7 +53,6 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 	if (((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_ESCAPE)) || (ev->type==ALLEGRO_EVENT_VIDEO_FINISHED)) {
 		// When there are no active gamestates, the engine will quit.
 		if (game->data->aftervideo) {
-			UnloadCurrentGamestate(game); // mark this gamestate to be stopped and unloaded
 			SwitchCurrentGamestate(game, game->data->aftervideo);
 		} else {
 			if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_ESCAPE)) {
@@ -70,6 +69,8 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 		UnloadAllGamestates(game); // mark this gamestate to be stopped and unloaded
 if (!game->data->winner) {
 	  LoadGamestate(game, "evil");
+		LoadGamestate(game, "plans");
+		LoadGamestate(game, "machine");
 		StartGamestate(game, "evil");
 		game->data->skipevil = true;
 		al_set_audio_stream_playing(game->data->music, true);
@@ -84,10 +85,10 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	// Called once, when the gamestate library is being loaded.
 	// Good place for allocating memory, loading bitmaps etc.
 	struct GamestateResources *data = malloc(sizeof(struct GamestateResources));
-	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 
 	data->video = al_open_video(GetDataFilePath(game, game->data->videoname));
 	al_register_event_source(game->_priv.event_queue, al_get_video_event_source(data->video));
+	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 
 	//LoadGamestate(game, game->data->aftervideo);
 
@@ -99,7 +100,9 @@ void Gamestate_Unload(struct Game *game, struct GamestateResources* data) {
 	// Good place for freeing all allocated memory and resources.
 	al_close_video(data->video);
 	free(game->data->videoname);
-	free(game->data->aftervideo);
+	if (game->data->aftervideo) {
+		free(game->data->aftervideo);
+	}
 	free(data);
 }
 

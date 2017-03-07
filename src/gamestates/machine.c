@@ -30,13 +30,10 @@ struct GamestateResources {
 		float rot;
 		float speed;
 
-		ALLEGRO_SAMPLE *sample;
-		ALLEGRO_SAMPLE_INSTANCE *target;
-
 		float time;
 };
 
-int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
+int Gamestate_ProgressCount = 2; // number of loading steps as reported by Gamestate_Load
 
 void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 	// Called 60 times per second. Here you should do all your game logic.
@@ -53,9 +50,9 @@ void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 	}
 
 	if (cel) {
-		al_play_sample_instance(data->target);
+		al_play_sample_instance(game->data->target);
 	} else {
-		al_stop_sample_instance(data->target);
+		al_stop_sample_instance(game->data->target);
 	}
 
 
@@ -124,16 +121,17 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	// Called once, when the gamestate library is being loaded.
 	// Good place for allocating memory, loading bitmaps etc.
 	struct GamestateResources *data = malloc(sizeof(struct GamestateResources));
-	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 
 	data->bg = al_load_bitmap(GetDataFilePath(game, "bg.png"));
+	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 	data->arrow = al_load_bitmap(GetDataFilePath(game, "arrow.png"));
+	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 
-	data->sample = al_load_sample(GetDataFilePath(game, "voices/ta.flac"));
-	data->target = al_create_sample_instance(data->sample);
-	al_attach_sample_instance_to_mixer(data->target, game->audio.fx);
+	game->data->sample = al_load_sample(GetDataFilePath(game, "voices/ta.flac"));
+	game->data->target = al_create_sample_instance(game->data->sample);
+	al_attach_sample_instance_to_mixer(game->data->target, game->audio.fx);
 
-	al_set_sample_instance_gain(data->target, 0.8);
+	al_set_sample_instance_gain(game->data->target, 0.8);
 
 	return data;
 }
@@ -141,7 +139,10 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 void Gamestate_Unload(struct Game *game, struct GamestateResources* data) {
 	// Called when the gamestate library is being unloaded.
 	// Good place for freeing all allocated memory and resources.
-
+	al_destroy_bitmap(data->bg);
+	al_destroy_bitmap(data->arrow);
+	al_destroy_sample_instance(game->data->target);
+	al_destroy_sample(game->data->sample);
 	free(data);
 }
 
@@ -155,7 +156,13 @@ void Gamestate_Start(struct Game *game, struct GamestateResources* data) {
 	TM_CleanQueue(game->data->timeline);
 	SayDialog(game, game->data->faceg, "Looks like he added new security measures since the last time I defeated him.", "security");
 
-	for (int i=0; i<5; i++) {
+	for (int i=0; i<8; i++) {
+		SayDialog(game, game->data->faceb, "Muahhahahahahahahahahahahahahahaha!", "l9");
+		SayDialog(game, game->data->faceb, "Hahahahhahaahahahahahahahahaaha!", "l10");
+		SayDialog(game, game->data->faceb, "Muahhahahahahahahahahahahah!", "l11");
+		SayDialog(game, game->data->faceb, "Haha ha ha hhahaha phew haha!", "l12");
+		SayDialog(game, game->data->faceb, "Hahhhahahahahahahahahhhahh!", "l13");
+		SayDialog(game, game->data->faceb, "Hahahahahahahahahahahha!", "l14");
 		SayDialog(game, game->data->faceb, "Muahahahahahahahahahahahaha!", "l1");
 		SayDialog(game, game->data->faceb, "Ahahahhhahahaha! Muoahohohohoaohaoo!", "l2");
 		SayDialog(game, game->data->faceb, "Muaahahahaha hhhahahahahaahahahahaha!", "l3");
@@ -164,12 +171,6 @@ void Gamestate_Start(struct Game *game, struct GamestateResources* data) {
 		SayDialog(game, game->data->faceb, "Hahahahahahahahahahahahahahaa!", "l6");
 		SayDialog(game, game->data->faceb, "Ohohoahahahahahahahahahahahhohaha!", "l7");
 		SayDialog(game, game->data->faceb, "Hahahahahahahahhahahaahaha!", "l8");
-		SayDialog(game, game->data->faceb, "Muahhahahahahahahahahahahahahahaha!", "l9");
-		SayDialog(game, game->data->faceb, "Hahahahhahaahahahahahahahahaaha!", "l10");
-		SayDialog(game, game->data->faceb, "Muahhahahahahahahahahahahah!", "l11");
-		SayDialog(game, game->data->faceb, "Haha ha ha hhahaha phew haha!", "l12");
-		SayDialog(game, game->data->faceb, "Hahhhahahahahahahahahhhahh!", "l13");
-		SayDialog(game, game->data->faceb, "Hahahahahahahahahahahha!", "l14");
 }
 	SayDialog(game, game->data->faceb, "Haha ha ha hhahaha phew haha!", "l12");
 

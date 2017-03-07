@@ -11,13 +11,16 @@ struct CommonResources {
 		ALLEGRO_FONT *font;
 	bool skipevil;
 	  char* text;
-		ALLEGRO_BITMAP *text_icon;
+//		ALLEGRO_BITMAP *text_icon;
 
 		ALLEGRO_BITMAP *faceg, *faceb, *face;
 
 		ALLEGRO_AUDIO_STREAM *music;
 bool winner;
     struct Timeline *timeline;
+
+		ALLEGRO_SAMPLE *sample;
+		ALLEGRO_SAMPLE_INSTANCE *target;
 };
 void HighlightCharacter(struct Game *game, struct Character *character, float alpha);
 

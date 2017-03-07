@@ -58,9 +58,9 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	// Called once, when the gamestate library is being loaded.
 	// Good place for allocating memory, loading bitmaps etc.
 	struct GamestateResources *data = malloc(sizeof(struct GamestateResources));
-	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 
 	data->bg = al_load_bitmap(GetDataFilePath(game, "plansbg.png"));
+	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 
 	data->doctor = CreateCharacter(game, "doctor");
 	RegisterSpritesheet(game, data->doctor, "doc");
@@ -75,6 +75,8 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 void Gamestate_Unload(struct Game *game, struct GamestateResources* data) {
 	// Called when the gamestate library is being unloaded.
 	// Good place for freeing all allocated memory and resources.
+	al_destroy_bitmap(data->bg);
+	DestroyCharacter(game, data->doctor);
 	free(data);
 }
 
