@@ -93,6 +93,8 @@ void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 
 if (data->unlock) {
 	  data->highlight1 = (GetCharacterX(game, data->ego) > 1100);
+} else {
+	data->highlight1 = false;
 }
 
   LogicDialogs(game);
