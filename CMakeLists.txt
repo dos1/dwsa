@@ -4,14 +4,12 @@ project(dwsa C)
 
 SET(LIBSUPERDERPY_GAMENAME "dwsa" CACHE INTERNAL "")
 SET(LIBSUPERDERPY_GAMENAME_PRETTY "Doctor von Wissenschäftler Strikes Again" CACHE INTERNAL "")
+SET(LIBSUPERDERPY_ORIENTATION "LANDSCAPE" CACHE INTERNAL "")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/libsuperderpy/cmake")
 
 include(libsuperderpy)
 include(SetPaths)
-
-find_package(Allegro5Video REQUIRED)
-include_directories(${ALLEGRO5_VIDEO_DIR})
 
 add_subdirectory(libsuperderpy)
 add_subdirectory(src)
